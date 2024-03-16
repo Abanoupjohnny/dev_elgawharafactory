@@ -10,8 +10,8 @@ app_license = "mit"
 # ------------------
 
 # include js, css files in header of desk.html
-app_include_css = "/assets/dev_elgawharafactory/css/dev_elgawharafactory.css"
-app_include_js = "/assets/dev_elgawharafactory/js/dev_elgawharafactory.js"
+# app_include_css = "/assets/dev_elgawharafactory/css/dev_elgawharafactory.css"
+# app_include_js = "/assets/dev_elgawharafactory/js/dev_elgawharafactory.js"
 
 website_context = {
 	"favicon": '/assets/dev_elgawharafactory/images/favicon.ico',
@@ -128,13 +128,14 @@ home_page = "login"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+	"*": {
+		"after_submit": "method",
+		# "on_update": "method",
+		# "on_cancel": "method",
+		# "on_trash": "method"
+	}
+}
 
 # Scheduled Tasks
 # ---------------
