@@ -1,18 +1,16 @@
 import frappe
-
+from datetime import datetime, timedelta
 
 def execute(filters=None):
     try:
         columns = get_columns()
         filters = frappe._dict(filters)
-        conditions = get_conditions(filters)
         data = get_data(filters)
         return columns, data
     except ImportError as e:
         frappe.throw(f"Import Error: {str(e)}")
     except Exception as e:
         frappe.throw(f"An error occurred: {str(e)}")
-
 
 def get_data(filters):
     try:
@@ -25,84 +23,17 @@ def get_data(filters):
             DATE(chk.time) AS `Attendance Date`,
             chk.shift AS `Shift Type`,
             MIN(CASE WHEN chk.log_type = 'IN' THEN chk.time END) AS `Checkin Time`,
-            MAX(CASE WHEN chk.log_type = 'OUT' THEN chk.time END) AS `Checkout Time`,
-            TIMEDIFF(
-                MAX(CASE WHEN chk.log_type = 'OUT' THEN chk.time END), 
-                MIN(CASE WHEN chk.log_type = 'IN' THEN chk.time END)
-            ) AS `Total Working Hours`,
-            IF(
-                TIMEDIFF(MAX(CASE WHEN chk.log_type = 'OUT' THEN chk.time END), MIN(CASE WHEN chk.log_type = 'IN' THEN chk.time END)) > '12:00:00',
-                TIMEDIFF(
-                    TIMEDIFF(
-                        MAX(CASE WHEN chk.log_type = 'OUT' THEN chk.time END),
-                        MIN(CASE WHEN chk.log_type = 'IN' THEN chk.time END)
-                    ),
-                    '12:00:00'
-                ),
-                '00:00:00'
-            ) AS `Overtime Hours`,
-            TIME_TO_SEC(
-                IF(
-                    TIMEDIFF(MAX(CASE WHEN chk.log_type = 'OUT' THEN chk.time END), MIN(CASE WHEN chk.log_type = 'IN' THEN chk.time END)) > '12:00:00',
-                    TIMEDIFF(
-                        TIMEDIFF(
-                            MAX(CASE WHEN chk.log_type = 'OUT' THEN chk.time END),
-                            MIN(CASE WHEN chk.log_type = 'IN' THEN chk.time END)
-                        ),
-                        '12:00:00'
-                    ),
-                    '00:00:00'
-                )
-            ) / 60 AS `Overtime Minutes`,
-            TIMESTAMPDIFF(
-                MINUTE,
-                MIN(CASE WHEN chk.log_type = 'IN' THEN chk.time END),
-                MAX(CASE WHEN chk.log_type = 'OUT' THEN chk.time END)
-            ) / 60 - IF(
-                TIMEDIFF(MAX(CASE WHEN chk.log_type = 'OUT' THEN chk.time END), MIN(CASE WHEN chk.log_type = 'IN' THEN chk.time END)) > '12:00:00',
-                TIME_TO_SEC(
-                    TIMEDIFF(
-                        TIMEDIFF(
-                            MAX(CASE WHEN chk.log_type = 'OUT' THEN chk.time END),
-                            MIN(CASE WHEN chk.log_type = 'IN' THEN chk.time END)
-                        ),
-                        '12:00:00'
-                    )
-                ) / 3600,
-                0
-            ) AS `Working Hours Without Overtime`,
-            (TIMESTAMPDIFF(
-                MINUTE,
-                MIN(CASE WHEN chk.log_type = 'IN' THEN chk.time END),
-                MAX(CASE WHEN chk.log_type = 'OUT' THEN chk.time END)
-            ) - IF(
-                TIMEDIFF(MAX(CASE WHEN chk.log_type = 'OUT' THEN chk.time END), MIN(CASE WHEN chk.log_type = 'IN' THEN chk.time END)) > '12:00:00',
-                TIME_TO_SEC(
-                    TIMEDIFF(
-                        TIMEDIFF(
-                            MAX(CASE WHEN chk.log_type = 'OUT' THEN chk.time END),
-                            MIN(CASE WHEN chk.log_type = 'IN' THEN chk.time END)
-                        ),
-                        '12:00:00'
-                    )
-                ) / 60,
-                0
-            )) AS `Working Minutes Without Overtime`,
-            ROUND(emp.ctc / 6, 2) AS `Daily Salary (EGP)`,
-            emp.name AS `Employee ID`,
-        IF(
-            TIMESTAMPDIFF(MINUTE, chk.shift_start, MIN(CASE WHEN chk.log_type = 'IN' THEN chk.time END)) > 60 OR
-            TIMESTAMPDIFF(MINUTE, MAX(CASE WHEN chk.log_type = 'OUT' THEN chk.time END), chk.shift_end) > 60,
-            1,
-            0
-        ) AS `Shift Missed Time`
-
+            MAX(CASE WHEN chk.log_type = 'OUT' THEN chk.time END) AS `Checkout Time`
         FROM
             `tabEmployee Checkin` chk
         JOIN
             `tabEmployee` emp ON chk.employee = emp.name
         LEFT JOIN
-            `tabAdditional Salary` add_sal ON emp.name = add_sal.employee AND DATE(chk.time) BETWEEN add_sal.from_date AND add_sal.to_date
+            `tabShift Type` shift ON shift.name = emp.default_shift
+        LEFT JOIN
+            `tabAdditional Salary` add_sal 
+            ON emp.name = add_sal.employee 
+            AND DATE(chk.time) BETWEEN add_sal.payroll_date AND add_sal.payroll_date
         {conditions}
         GROUP BY
             emp.name, DATE(chk.time)
@@ -112,26 +43,62 @@ def get_data(filters):
         ORDER BY
             emp.name, DATE(chk.time)
         """
+        
+        # Debugging print statements
+        print(f"Query: {query}")
+        print(f"Parameters: {filters}")
+
         data = frappe.db.sql(query, filters, as_dict=1)
 
         for row in data:
-            overtime_rate = get_overtime_rate(row['Employee ID'], row['Designation'],
-                                              row['Branch'], row['Shift Type'])
+            shift_type = row['Shift Type']
+            shift_details = frappe.get_doc("Shift Type", shift_type)
 
-            row['Overtime Pay (EGP)'] = round(
-                (row['Overtime Minutes'] * (row['Daily Salary (EGP)'] / (12 * 60)) * overtime_rate),
-                2
-            )
-            row['Total Hours (EGP)'] = row['Overtime Pay (EGP)'] + row['Daily Salary (EGP)']
+            checkin_time = row['Checkin Time']
+            checkout_time = row['Checkout Time']
+            
+            shift_start_time = datetime.combine(row['Attendance Date'], convert_timedelta_to_time(shift_details.start_time))
+            shift_end_time = datetime.combine(row['Attendance Date'], convert_timedelta_to_time(shift_details.end_time))
+
+            # Adjust checkin and checkout times based on shift start and end times
+            if checkin_time < shift_start_time:
+                checkin_time = shift_start_time
+
+            # if checkout_time > shift_end_time:
+            #     checkout_time = shift_end_time
+
+            if checkin_time and checkout_time:
+                total_hours = checkout_time - checkin_time
+                
+                # Calculate overtime and non-overtime hours
+                if checkout_time > shift_end_time:
+                    overtime_hours = checkout_time - shift_end_time
+                else:
+                    overtime_hours = timedelta(0)
+                    
+                non_overtime_hours = total_hours - overtime_hours
+
+                row['Total Hours'] = format_timedelta(total_hours)
+                row['Overtime Hours'] = format_timedelta(overtime_hours)
+                row['Non-Overtime Hours'] = format_timedelta(non_overtime_hours)
 
             additional_salary = get_additional_salary(row['Employee ID'], row['Attendance Date'])
             row['Deductions'] = additional_salary.get('Deductions', 0)
             row['Earnings'] = additional_salary.get('Earnings', 0)
+            row['Net Earnings'] = row['Earnings'] - row['Deductions']
 
         return data
     except Exception as e:
         frappe.throw(f"An error occurred while fetching data: {str(e)}")
 
+def convert_timedelta_to_time(td):
+    return (datetime.min + td).time()
+
+def format_timedelta(td):
+    total_seconds = int(td.total_seconds())
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    return f"{hours}h {minutes}m {seconds}s"
 
 def get_conditions(filters):
     conditions = []
@@ -150,68 +117,35 @@ def get_conditions(filters):
     else:
         return ""
 
-
 def get_columns():
     return [
         {"label": "اسم الموظف", "fieldname": "Employee ID", "fieldtype": "Link", "options": "Employee", "width": 150},
-        {"label": "المسمى الوظيفي", "fieldname": "Designation", "fieldtype": "Link", "options": "Designation",
-         "width": 120},
+        {"label": "المسمى الوظيفي", "fieldname": "Designation", "fieldtype": "Link", "options": "Designation", "width": 120},
         {"label": "الفرع", "fieldname": "Branch", "fieldtype": "Link", "options": "Branch", "width": 120},
         {"label": "تاريخ الحضور", "fieldname": "Attendance Date", "fieldtype": "Date", "width": 120},
         {"label": "نوع الشيفت", "fieldname": "Shift Type", "fieldtype": "Link", "options": "Shift Type", "width": 100},
         {"label": "وقت الحضور", "fieldname": "Checkin Time", "fieldtype": "Data", "width": 100},
         {"label": "وقت الانصراف", "fieldname": "Checkout Time", "fieldtype": "Data", "width": 100},
-        {"label": "الخصومات (EGP)", "fieldname": "Deductions", "fieldtype": "Currency", "width": 120},
-        {"label": "الأرباح (EGP)", "fieldname": "Earnings", "fieldtype": "Currency", "width": 120},
-        {"label": "ساعات الدوام", "fieldname": "Total Working Hours", "fieldtype": "Data", "width": 120},
-        {"label": "ساعات العمل الإضافي", "fieldname": "Overtime Hours", "fieldtype": "Data", "width": 120},
-        {"label": "دقائق العمل الإضافي", "fieldname": "Overtime Minutes", "fieldtype": "Float", "width": 120},
-        {"label": "ساعات العمل بدون العمل الإضافي", "fieldname": "Working Hours Without Overtime", "fieldtype": "Data",
-         "width": 150},
-        {"label": "دقائق العمل بدون العمل الإضافي", "fieldname": "Working Minutes Without Overtime",
-         "fieldtype": "Float", "width": 150},
-        {"label": "الراتب اليومي (EGP)", "fieldname": "Daily Salary (EGP)", "fieldtype": "Currency", "width": 120},
-        {"label": "أجر العمل الإضافي (EGP)", "fieldname": "Overtime Pay (EGP)", "fieldtype": "Currency", "width": 120},
-        {"label": "اجمالي الساعات (EGP)", "fieldname": "Total Hours (EGP)", "fieldtype": "Currency", "width": 120},
-        {"label": "تخلف عن مواعيد الشيفت", "fieldname": "Shift Missed Time", "fieldtype": "Check", "width": 120},
+        {"label": "اجمالي عدد الساعات", "fieldname": "Total Hours", "fieldtype": "Data", "width": 120},
+        {"label": "عدد ساعات الاوفر تايم", "fieldname": "Overtime Hours", "fieldtype": "Data", "width": 120},
+        {"label": "عدد ساعات بدون الاوفر تايم", "fieldname": "Non-Overtime Hours", "fieldtype": "Data", "width": 120},
+        {"label": "اجمالي الاستحقاقات", "fieldname": "Earnings", "fieldtype": "Currency", "width": 120},
+        {"label": "اجمالي الخصومات", "fieldname": "Deductions", "fieldtype": "Currency", "width": 120},
+        {"label": "صافي الاستحقاقات", "fieldname": "Net Earnings", "fieldtype": "Currency", "width": 120},
     ]
-
-
-def get_overtime_rate(employee_id, designation, branch, shift_type):
-    overtime_policy = get_employee_overtime_policy(designation, branch, shift_type)
-    overtime_multiplier = 1.0
-    if overtime_policy:
-        overtime_multiplier = overtime_policy.extra_time_per
-
-    return overtime_multiplier
-
-
-def get_employee_overtime_policy(designation, branch, shift_type):
-    employee_penalty_doc = frappe.get_single("Employee Penalty")
-
-    # Check if there's an active overtime policy that matches the employee's criteria
-    overtime_policy = None
-    for policy in employee_penalty_doc.overtime_policy:
-        if (policy.active and
-                policy.designation == designation and
-                policy.branch == branch and
-                policy.shift_type == shift_type):
-            overtime_policy = policy
-            break
-
-    return overtime_policy
-
 
 def get_additional_salary(employee, date):
     try:
         query = """
         SELECT
             type,
-            amount
+            SUM(amount) AS total_amount
         FROM
             `tabAdditional Salary`
         WHERE
-            employee = %s AND %s BETWEEN from_date AND to_date
+            employee = %s AND %s BETWEEN payroll_date AND payroll_date
+        GROUP BY
+            type
         """
         additional_salaries = frappe.db.sql(query, (employee, date), as_dict=True)
 
@@ -220,9 +154,9 @@ def get_additional_salary(employee, date):
 
         for salary in additional_salaries:
             if salary.get('type') == 'Earning':
-                earnings += salary.get('amount', 0)
+                earnings += salary.get('total_amount', 0)
             elif salary.get('type') == 'Deduction':
-                deductions += salary.get('amount', 0)
+                deductions += salary.get('total_amount', 0)
 
         return {'Earnings': earnings, 'Deductions': deductions}
     except Exception as e:

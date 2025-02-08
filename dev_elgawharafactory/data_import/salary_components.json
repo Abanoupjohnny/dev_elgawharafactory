@@ -19,5 +19,12 @@
         "salary_component": "Over Time",
         "description": "Over Time",
         "type": "Earning"
+    },
+    {
+        "doctype": "Salary Component",
+        "name": "Daily Salary",
+        "salary_component": "Daily Salary",
+        "description": "Daily Salary",
+        "type": "Earning"
     }
 ]

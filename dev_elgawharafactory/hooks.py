@@ -30,6 +30,11 @@ scheduler_events = {
     }
 }
 
+jinja = {
+    "methods": [
+        "dev_elgawharafactory.utils.jinja_methods.get_total_outstanding_amount",
+    ]
+}
 
 # include js, css files in header of web template
 # web_include_css = "/assets/dev_elgawharafactory/css/dev_elgawharafactory.css"

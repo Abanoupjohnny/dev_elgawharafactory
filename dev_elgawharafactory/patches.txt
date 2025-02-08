@@ -4,4 +4,4 @@
 
 [post_model_sync]
 # Patches added in this section will be executed after doctypes are migrated
-dev_elgawharafactory.patches.post_model_sync.import_salary_components ##
+dev_elgawharafactory.patches.post_model_sync.import_salary_components  02-08 

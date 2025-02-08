@@ -1,0 +1,83 @@
+<style>
+    .print-format {
+        padding: 4mm;
+        font-size: 8.0pt !important;
+    }
+    .print-format td {
+        vertical-align: middle !important;
+    }
+</style>
+
+<h2 class="text-center" style="margin-top:0">{%= __(report.report_name) %}</h2>
+<h4 class="text-center">
+    {% if (filters.party) { %}
+        {%= __(filters.party) %}
+    {% } %}
+</h4>
+<h6 class="text-center">
+    {% if (filters.tax_id) { %}
+        {%= __("Tax Id: ") %} {%= filters.tax_id %}
+    {% } %}
+</h6>
+<h5 class="text-center">
+    {%= __(filters.ageing_based_on) %}
+    {%= __("Until") %}
+    {%= frappe.datetime.str_to_user(filters.report_date) %}
+</h5>
+
+<div class="clearfix">
+    <div class="pull-left">
+        {% if(filters.payment_terms) { %}
+            <strong>{%= __("Payment Terms") %}:</strong> {%= filters.payment_terms %}
+        {% } %}
+    </div>
+    <div class="pull-right">
+        {% if(filters.credit_limit) { %}
+            <strong>{%= __("Credit Limit") %}:</strong> {%= format_currency(filters.credit_limit) %}
+        {% } %}
+    </div>
+</div>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th style="width: 10%">{%= __("Date") %}</th>
+            <th style="width: 24%">{%= __("Reference") %}</th>
+            <th style="width: 20%">{%= (filters.party) ? __("Remarks"): __("Party") %}</th>
+            <th style="width: 10%; text-align: right">{%= __("Invoiced Amount") %}</th>
+            <th style="width: 10%; text-align: right">{%= __("Outstanding Amount") %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for(var i=0, l=data.length; i<l; i++) { %}
+            {% if(data[i]["voucher_type"] === "Purchase Invoice") { %}
+                <tr>
+                    <td>{%= frappe.datetime.str_to_user(data[i]["posting_date"]) %}</td>
+                    <td>{%= data[i]["voucher_no"] %}</td>
+                    <td>
+                        {% if(!(filters.party)) { %}
+                            {%= data[i]["party"] %}
+                            {% if(data[i]["customer_name"] && data[i]["customer_name"] != data[i]["party"]) { %}
+                                <br> {%= data[i]["customer_name"] %}
+                            {% } %}
+                        {% } %}
+                    </td>
+                    <td style="text-align: right">{%= format_currency(data[i]["invoiced"], data[i]["currency"]) %}</td>
+                    <td style="text-align: right">{%= format_currency(data[i]["outstanding"], data[i]["currency"]) %}</td>
+                </tr>
+                {% if(data[i]["items"]) { %}
+                    {% for(var j=0; j<data[i]["items"].length; j++) { %}
+                        <tr>
+                            <td></td>
+                            <td>{%= data[i]["items"][j]["item_code"] %}</td>
+                            <td>{%= data[i]["items"][j]["description"] %}</td>
+                            <td style="text-align: right">{%= format_currency(data[i]["items"][j]["amount"], data[i]["currency"]) %}</td>
+                            <td></td>
+                        </tr>
+                    {% } %}
+                {% } %}
+            {% } %}
+        {% } %}
+    </tbody>
+</table>
+<p class="text-right text-muted">{{ __("Printed On ") }}{%= frappe.datetime.str_to_user(frappe.datetime.get_datetime_as_string()) %}</p>
