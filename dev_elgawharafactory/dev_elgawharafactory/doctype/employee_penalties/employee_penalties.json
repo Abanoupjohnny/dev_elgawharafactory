@@ -1,0 +1,120 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-07-27 01:31:44.804207",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "active",
+  "column_break_sxgm",
+  "from",
+  "column_break_nakv",
+  "to",
+  "column_break_kdhd",
+  "deduction",
+  "column_break_howa",
+  "designation",
+  "column_break_lpic",
+  "branch"
+ ],
+ "fields": [
+  {
+   "fieldname": "from",
+   "fieldtype": "Time",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "From",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_nakv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "to",
+   "fieldtype": "Time",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "To",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_kdhd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "deduction",
+   "fieldtype": "Int",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Deduction (In Min)",
+   "non_negative": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_howa",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "designation",
+   "fieldtype": "Link",
+   "in_filter": 1,
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Designation",
+   "options": "Designation",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_lpic",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "branch",
+   "fieldtype": "Link",
+   "in_filter": 1,
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Branch",
+   "options": "Branch",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "active",
+   "fieldtype": "Check",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Active"
+  },
+  {
+   "fieldname": "column_break_sxgm",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2024-08-02 23:16:49.537789",
+ "modified_by": "Administrator",
+ "module": "Dev Elgawharafactory",
+ "name": "Employee Penalties",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

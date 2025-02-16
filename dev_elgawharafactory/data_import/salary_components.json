@@ -1,0 +1,30 @@
+[
+    {
+        "doctype": "Salary Component",
+        "name": "Late Entry Penalty",
+        "salary_component": "Late Entry Penalty",
+        "description": "Late Entry Penalty",
+        "type": "Deduction"
+    },
+    {
+        "doctype": "Salary Component",
+        "name": "Extra Day Allowance",
+        "salary_component": "Extra Day Allowance",
+        "description": "Extra Day Allowance",
+        "type": "Earning"
+    },
+    {
+        "doctype": "Salary Component",
+        "name": "Over Time",
+        "salary_component": "Over Time",
+        "description": "Over Time",
+        "type": "Earning"
+    },
+    {
+        "doctype": "Salary Component",
+        "name": "Daily Salary",
+        "salary_component": "Daily Salary",
+        "description": "Daily Salary",
+        "type": "Earning"
+    }
+]

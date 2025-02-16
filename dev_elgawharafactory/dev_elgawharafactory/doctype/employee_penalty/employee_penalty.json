@@ -1,0 +1,73 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-07-27 01:32:40.570086",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "late_entry_penalty_tab",
+  "employee_penalties",
+  "extra_day_allowance_tab",
+  "designation",
+  "overtime_tab",
+  "overtime_policy"
+ ],
+ "fields": [
+  {
+   "fieldname": "employee_penalties",
+   "fieldtype": "Table",
+   "label": "Employee Penalties",
+   "options": "Employee Penalties"
+  },
+  {
+   "fieldname": "late_entry_penalty_tab",
+   "fieldtype": "Tab Break",
+   "label": "Late Entry"
+  },
+  {
+   "fieldname": "extra_day_allowance_tab",
+   "fieldtype": "Tab Break",
+   "label": "Extra Day Allowance"
+  },
+  {
+   "fieldname": "overtime_tab",
+   "fieldtype": "Tab Break",
+   "label": "Overtime"
+  },
+  {
+   "fieldname": "designation",
+   "fieldtype": "Table MultiSelect",
+   "label": "Designation",
+   "options": "Extra Day Allowance Designation"
+  },
+  {
+   "fieldname": "overtime_policy",
+   "fieldtype": "Table",
+   "label": "Overtime Policy",
+   "options": "Employee Overtime Policy"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2024-07-28 02:10:53.430584",
+ "modified_by": "Administrator",
+ "module": "Dev Elgawharafactory",
+ "name": "Employee Penalty",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

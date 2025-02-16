@@ -14,10 +14,27 @@ app_license = "mit"
 # app_include_js = "/assets/dev_elgawharafactory/js/dev_elgawharafactory.js"
 
 website_context = {
-	"favicon": '/assets/dev_elgawharafactory/images/favicon.ico',
-	"splash_image": "/assets/dev_elgawharafactory/images/splash-screen.png"
+    "favicon": '/assets/dev_elgawharafactory/images/favicon.ico',
+    "splash_image": "/assets/dev_elgawharafactory/images/splash-screen.png"
 }
 
+override_doctype_class = {
+    "Employee Checkin": "dev_elgawharafactory.overrides.employee_checkin.CustomEmployeeCheckin"
+}
+
+scheduler_events = {
+    "cron": {
+        "0 8 * * 0": [
+           "dev_elgawharafactory.tasks.employee_additional_salary.calculate_weekly_attendance_and_add_salary"
+        ]
+    }
+}
+
+jinja = {
+    "methods": [
+        "dev_elgawharafactory.utils.jinja_methods.get_total_outstanding_amount",
+    ]
+}
 
 # include js, css files in header of web template
 # web_include_css = "/assets/dev_elgawharafactory/css/dev_elgawharafactory.css"
@@ -129,12 +146,12 @@ home_page = "login"
 # Hook on document methods and events
 
 doc_events = {
-	"*": {
-		"after_submit": "method",
-		# "on_update": "method",
-		# "on_cancel": "method",
-		# "on_trash": "method"
-	}
+    "*": {
+        "after_submit": "method",
+        # "on_update": "method",
+        # "on_cancel": "method",
+        # "on_trash": "method"
+    }
 }
 
 # Scheduled Tasks
@@ -233,4 +250,3 @@ doc_events = {
 # default_log_clearing_doctypes = {
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
-

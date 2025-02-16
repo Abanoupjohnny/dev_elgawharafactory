@@ -1,0 +1,106 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-07-28 00:28:26.876013",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "active",
+  "column_break_jpwy",
+  "designation",
+  "column_break_eyxo",
+  "branch",
+  "column_break_uhuk",
+  "shift_type",
+  "column_break_rtlh",
+  "extra_time_per"
+ ],
+ "fields": [
+  {
+   "default": "1",
+   "fieldname": "active",
+   "fieldtype": "Check",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Active"
+  },
+  {
+   "fieldname": "column_break_jpwy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "designation",
+   "fieldtype": "Link",
+   "in_filter": 1,
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Designation",
+   "options": "Designation",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_eyxo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "branch",
+   "fieldtype": "Link",
+   "in_filter": 1,
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Branch",
+   "options": "Branch",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_uhuk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "shift_type",
+   "fieldtype": "Link",
+   "in_filter": 1,
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Shift Type",
+   "options": "Shift Type",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_rtlh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "extra_time_per",
+   "fieldtype": "Float",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Rate (In Min)",
+   "non_negative": 1,
+   "reqd": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2024-07-28 02:09:58.530957",
+ "modified_by": "Administrator",
+ "module": "Dev Elgawharafactory",
+ "name": "Employee Overtime Policy",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -1,0 +1,38 @@
+{
+ "add_total_row": 1,
+ "columns": [],
+ "creation": "2024-07-29 07:55:42.802284",
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [],
+ "idx": 3,
+ "is_standard": "Yes",
+ "letterhead": null,
+ "modified": "2024-08-09 18:35:23.612778",
+ "modified_by": "Administrator",
+ "module": "Dev Elgawharafactory",
+ "name": "Employee Summary Attandance",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "ref_doctype": "Attendance",
+ "report_name": "Employee Summary Attandance",
+ "report_type": "Script Report",
+ "roles": [
+  {
+   "role": "HR User"
+  },
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "HR Manager"
+  },
+  {
+   "role": "Employee"
+  },
+  {
+   "role": "Employee Self Service"
+  }
+ ]
+}
